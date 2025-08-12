@@ -1,0 +1,19 @@
+﻿@model IEnumerable<TaskManager.Models.TaskItem>
+
+<h1>All Tasks</h1>
+
+<a href="/Tasks/Create">Add a new task</a>
+@foreach(var task in Model)
+{
+    <h2>@task.Name</h2>    
+    <p>@task.Content</p>
+    <small>@task.CreatedAt</small>
+    <br /><small> @(task.isCompleted ? "Done ✔️" : "Pending ❌")</small>
+    @if (!task.isCompleted)
+    {
+        <a href="/Tasks/Complete/@task.Id">Mark as done</a>       
+    }
+    <a href="/Tasks/Delete/@task.Id">Delete</a><br />
+    <a href="/Tasks/Edit/@task.Id">Edit</a>
+    <hr />
+}

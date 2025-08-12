@@ -1,0 +1,28 @@
+﻿@model TaskManager.Models.TaskItem
+
+<h2>Edit Task</h2>
+
+<form method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <p>
+        <label asp-for="Name"></label><br />
+        <input asp-for="Name" />
+    </p>
+
+    <p>
+        <label asp-for="Content"></label><br />
+        <input asp-for="Content" />
+    </p>
+
+    <p>
+        <label asp-for="isCompleted"></label><br />
+        <select asp-for="isCompleted">
+            <option value="false">Pending</option>
+            <option value="true">Done</option>
+        </select>
+    </p>
+
+    <button type="submit">Save</button>
+    <a asp-action="Overview" asp-controller="Tasks">Cancel</a>
+</form>
