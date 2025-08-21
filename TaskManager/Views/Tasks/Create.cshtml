@@ -2,7 +2,13 @@
 
 <h2>Create task</h2>
 <form method="POST">
-    <input type="text" name="Name" />
-    <input type="text" name="Content" />
+    <label asp-for="Name">Input Task Name:</label><br />
+    <input type="text" name="Name" /><br />
+    <label asp-for="Content">Content:</label><br />
+    <input type="text" name="Content" /><br />
+    <label asp-for="Details.Note">Additional notes:</label><br />
+    <input type="text" name="Details.Note" /><br />
+    <label asp-for="CategoryId">Select a Category</label><br />
+    <select asp-for="CategoryId" asp-items="ViewBag.Categories"></select>
     <button type="submit">Submit</button>
 </form>

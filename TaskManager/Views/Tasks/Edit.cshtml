@@ -23,6 +23,16 @@
         </select>
     </p>
 
+    <p>
+        <label asp-for="Details.Note"></label><br />
+        <input asp-for="Details.Note" />
+    
+    </p>
+    <p>
+        <label asp-for="CategoryId"></label>
+        <select asp-for="CategoryId" asp-items="ViewBag.Categories"></select>
+    </p>
+
     <button type="submit">Save</button>
     <a asp-action="Overview" asp-controller="Tasks">Cancel</a>
 </form>

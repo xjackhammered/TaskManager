@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TaskManager.Data;
 using TaskManager.Models;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace TaskManager.Controllers
 {
@@ -11,53 +14,55 @@ namespace TaskManager.Controllers
         {
             _db = db;
         }
-        public IActionResult Overview()
+        public async Task<IActionResult> Overview()
         {
-            var tasks = _db.Tasks.ToList();
+            var tasks = await _db.Tasks.Include(t => t.Details).Include(c => c.Category).ToListAsync();
             return View(tasks);
         }
         public IActionResult Create()
         {
+            ViewBag.Categories = new SelectList(_db.Categories, "Id", "Name");
             return View();
         }
         [HttpPost]
-        public IActionResult Create(TaskItem task)
+        public async Task<IActionResult> Create([Bind("Id","Content", "Name", "CategoryId", "Details")]TaskItem task)
         {
             if (ModelState.IsValid)
             {
                 task.CreatedAt = DateTime.Now;
                 task.isCompleted = false;
                 _db.Tasks.Add(task);
-                _db.SaveChanges();
+                await _db.SaveChangesAsync();
                 return RedirectToAction("Overview");
             }
             return View(task);
         }
-        public IActionResult Complete(int id)
+        public async Task<IActionResult> Complete(int id)
         {
-            var task = _db.Tasks.Find(id);
+            var task = await _db.Tasks.FindAsync(id);
             if (task != null)
             {
                 task.isCompleted = true;
-                _db.SaveChanges();
+                await _db.SaveChangesAsync();
             }
             return RedirectToAction("Overview");
         }
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var task = _db.Tasks.Find(id);
+            var task = await _db.Tasks.FindAsync(id);
 
             if (task != null)
             {
                 _db.Tasks.Remove(task);
-                _db.SaveChanges();
+                await _db.SaveChangesAsync();
             }
             return RedirectToAction("Overview");
         }
 
-        public IActionResult Edit(int id)
-        {
-            var task = _db.Tasks.Find(id);
+        public async Task<IActionResult> Edit(int id)
+        {   
+            ViewBag.Categories = new SelectList(_db.Categories, "Id", "Name");
+            var task = await _db.Tasks.Include(t => t.Details).FirstOrDefaultAsync(t => t.Id == id);
             if (task == null)
             {
                 return NotFound();
@@ -67,11 +72,11 @@ namespace TaskManager.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(TaskItem task)
+        public async Task<IActionResult> Edit(int id, [Bind("Id", "Content", "Name", "CategoryId", "Details")] TaskItem task)
         {
             if (ModelState.IsValid)
             {
-                var existingTask = _db.Tasks.Find(task.Id);
+                var existingTask = await _db.Tasks.Include(t => t.Details).Include(c => c.Category).FirstOrDefaultAsync(t => t.Id == task.Id);
                 if (existingTask == null)
                 {
                     return NotFound();
@@ -79,8 +84,12 @@ namespace TaskManager.Controllers
                 existingTask.Name = task.Name;
                 existingTask.Content = task.Content;
                 existingTask.isCompleted = task.isCompleted;
+                existingTask.CategoryId = task.CategoryId;
+        
+                existingTask.Details.Note = task.Details.Note;
 
-                _db.SaveChanges();
+             
+                await _db.SaveChangesAsync();
                 return RedirectToAction("Overview");
             }
             return View(task);
